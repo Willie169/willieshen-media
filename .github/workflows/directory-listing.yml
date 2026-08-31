@@ -1,0 +1,36 @@
+name: directory-listing
+on:
+  workflow_dispatch:
+  push:
+jobs:
+  pages-directory-listing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jayanta525/github-pages-directory-listing@v4.0.0
+        with:
+          FOLDER: data
+      - uses: actions/upload-pages-artifact@v3.0.1
+        with:
+          name: github-pages
+          path: data
+  deploy:
+    needs: pages-directory-listing
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4.0.0
+  delete-artifact:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: geekyeggo/delete-artifact@v6
+        with:
+          name: github-pages
